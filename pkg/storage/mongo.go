@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type Mongo struct {
+type MongoOptions struct {
 	Host        string
 	Port        string
 	MaxPoolSize uint64
@@ -20,22 +20,22 @@ type Mongo struct {
 	Logger      *zap.Logger
 }
 
-func NewMongoClient(m Mongo) (*mongo.Database, error) {
+func NewMongo(o MongoOptions) (*mongo.Database, error) {
 	opts := options.Client()
-	opts.SetMaxPoolSize(m.MaxPoolSize)
-	opts.SetMinPoolSize(m.MinPoolSize)
-	opts.SetTimeout(m.Timeout)
-	opts.SetMaxConnIdleTime(m.MaxIdleTime)
-	opts.ApplyURI("mongodb://" + m.Host + ":" + m.Port)
+	opts.SetMaxPoolSize(o.MaxPoolSize)
+	opts.SetMinPoolSize(o.MinPoolSize)
+	opts.SetTimeout(o.Timeout)
+	opts.SetMaxConnIdleTime(o.MaxIdleTime)
+	opts.ApplyURI("mongodb://" + o.Host + ":" + o.Port)
 	client, err := mongo.NewClient(opts)
 	if err != nil {
-		m.Logger.Error("failed to settle mongo client", zap.Error(err))
+		o.Logger.Error("failed to settle mongo client", zap.Error(err))
 		panic(err)
 	}
 	err = client.Connect(context.Background())
 	if err != nil {
-		m.Logger.Error("failed to settle mongo connection", zap.Error(err))
+		o.Logger.Error("failed to settle mongo connection", zap.Error(err))
 		panic(err)
 	}
-	return client.Database(m.Schema), nil
+	return client.Database(o.Schema), nil
 }
