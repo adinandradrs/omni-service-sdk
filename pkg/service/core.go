@@ -11,9 +11,9 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func Log(p bool) (z *zap.Logger) {
+func Log(prod bool) (z *zap.Logger) {
 	var c zap.Config
-	if p {
+	if prod {
 		c = zap.NewProductionConfig()
 		c.DisableStacktrace = true
 
@@ -43,9 +43,9 @@ func Env(logger *zap.Logger) *domain.TechnicalError {
 	return nil
 }
 
-func Exception(msg string, ex error, logger *zap.Logger) *domain.TechnicalError {
+func Exception(msg string, err error, logger *zap.Logger) *domain.TechnicalError {
 	e := &domain.TechnicalError{
-		Exception: ex.Error(),
+		Exception: err.Error(),
 		Occurred:  time.Now().Unix(),
 		Ticket:    uuid.New().String(),
 	}

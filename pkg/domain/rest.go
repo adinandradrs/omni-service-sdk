@@ -39,20 +39,21 @@ type (
 	}
 
 	SearchRequest struct {
-		TextSearch string `json:"textSearch"`
+		TextSearch string `json:"text_search"`
 		Start      uint   `json:"start"`
 		Limit      uint   `json:"limit"`
-		SortBy     string `json:"sortBy"`
+		SortBy     string `json:"sort_by"`
 		Sort       string `json:"sort"`
 	}
 
 	SessionRequest struct {
-		UserId       uint   `json:"userId" swaggerignore:"true"`
+		UserId       uint   `json:"user_id" swaggerignore:"true"`
 		Token        string `json:"token" swaggerignore:"true"`
-		RefreshToken string `json:"refreshToken" swaggerignore:"true"`
+		RefreshToken string `json:"refresh_token" swaggerignore:"true"`
 		Username     string `json:"username" swaggerignore:"true"`
-		ChannelId    string `json:"channelId" swaggerignore:"true"`
-		ApiKey       string `json:"apiKey" swaggerignore:"true"`
+		ChannelId    string `json:"channel_id" swaggerignore:"true"`
+		ApiKey       string `json:"api_key" swaggerignore:"true"`
+		AccessToken  string `json:"access_token" swaggerignore:"true"`
 	}
 )
 

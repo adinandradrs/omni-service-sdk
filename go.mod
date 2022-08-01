@@ -11,6 +11,8 @@ require (
 	go.uber.org/zap v1.21.0
 )
 
+require github.com/pkg/errors v0.9.1 // indirect
+
 require (
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.12.1 // indirect
