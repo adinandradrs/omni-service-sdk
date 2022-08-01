@@ -20,7 +20,7 @@ type MongoOptions struct {
 	Logger      *zap.Logger
 }
 
-func NewMongo(o MongoOptions) (*mongo.Database, error) {
+func NewMongo(o *MongoOptions) (*mongo.Database, error) {
 	opts := options.Client()
 	opts.SetMaxPoolSize(o.MaxPoolSize)
 	opts.SetMinPoolSize(o.MinPoolSize)

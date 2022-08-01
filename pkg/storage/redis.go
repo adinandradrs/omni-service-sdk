@@ -38,7 +38,7 @@ type Cacher interface {
 	Ttl(k string, p string) (t time.Duration, e *domain.TechnicalError)
 }
 
-func NewRedis(o RedisOptions) Cacher {
+func NewRedis(o *RedisOptions) Cacher {
 	return &Redis{
 		logger: o.Logger,
 		Cache: redis.NewClient(&redis.Options{
@@ -51,7 +51,7 @@ func NewRedis(o RedisOptions) Cacher {
 	}
 }
 
-func NewClusterRedis(o RedisOptions) Cacher {
+func NewClusterRedis(o *RedisOptions) Cacher {
 	return &ClusterRedis{
 		logger: o.Logger,
 		Cache: redis.NewClusterClient(&redis.ClusterOptions{

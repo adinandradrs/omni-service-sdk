@@ -18,7 +18,7 @@ type PgOptions struct {
 	Logger  *zap.Logger
 }
 
-func NewPgPool(pg PgOptions) *pgxpool.Pool {
+func NewPgPool(pg *PgOptions) *pgxpool.Pool {
 	url := "postgres://{{username}}:{{password}}@{{host}}:{{port}}/{{schema}}"
 	url = strings.Replace(url, "{{host}}", pg.Host, -1)
 	url = strings.Replace(url, "{{port}}", pg.Port, -1)
