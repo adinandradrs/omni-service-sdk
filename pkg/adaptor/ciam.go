@@ -34,11 +34,11 @@ type (
 
 type CiamWatcher interface {
 	GetSecret(u string) string
-	Register(req RegisterRequest) (result interface{}, err error)
-	ConfirmRegister(req ConfirmRegisterRequest) (result interface{}, err error)
-	Login(req LoginRequest) (result interface{}, err error)
-	Logout(req domain.SessionRequest) (result interface{}, err error)
-	JwtInfo(t string) (jwtdata map[string]interface{}, err error)
-	RefreshToken(req domain.SessionRequest) (result interface{}, err error)
-	ChangePassword(req ChangePasswordRequest) (out interface{}, err error)
+	Register(req RegisterRequest) (res interface{}, e *domain.TechnicalError)
+	ConfirmRegister(req ConfirmRegisterRequest) (res interface{}, e *domain.TechnicalError)
+	Login(req LoginRequest) (res interface{}, e *domain.TechnicalError)
+	Logout(req domain.SessionRequest) (res interface{}, e *domain.TechnicalError)
+	JwtInfo(t string) (res map[string]interface{}, e *domain.TechnicalError)
+	RefreshToken(req domain.SessionRequest) (res interface{}, e *domain.TechnicalError)
+	ChangePassword(req ChangePasswordRequest) (res interface{}, e *domain.TechnicalError)
 }
