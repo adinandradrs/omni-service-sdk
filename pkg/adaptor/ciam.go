@@ -33,7 +33,7 @@ type (
 )
 
 type CiamWatcher interface {
-	GetSecret(u string) string
+	Secret(u string) string
 	Register(req RegisterRequest) (res interface{}, e *domain.TechnicalError)
 	ConfirmRegister(req ConfirmRegisterRequest) (res interface{}, e *domain.TechnicalError)
 	Login(req LoginRequest) (res interface{}, e *domain.TechnicalError)
