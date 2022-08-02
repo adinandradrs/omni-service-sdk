@@ -20,14 +20,14 @@ type (
 		Logger *zap.Logger
 	}
 
-	Redis struct {
+	singleRedis struct {
 		logger *zap.Logger
-		Cache  *redis.Client
+		cache  *redis.Client
 	}
 
-	ClusterRedis struct {
+	clusterRedis struct {
 		logger *zap.Logger
-		Cache  *redis.ClusterClient
+		cache  *redis.ClusterClient
 	}
 )
 
@@ -39,9 +39,9 @@ type Cacher interface {
 }
 
 func NewRedis(o *RedisOptions) Cacher {
-	return &Redis{
+	return &singleRedis{
 		logger: o.Logger,
-		Cache: redis.NewClient(&redis.Options{
+		cache: redis.NewClient(&redis.Options{
 			Addr:         o.Addr,
 			Password:     o.Passwd,
 			DB:           o.Index,
@@ -52,9 +52,9 @@ func NewRedis(o *RedisOptions) Cacher {
 }
 
 func NewClusterRedis(o *RedisOptions) Cacher {
-	return &ClusterRedis{
+	return &clusterRedis{
 		logger: o.Logger,
-		Cache: redis.NewClusterClient(&redis.ClusterOptions{
+		cache: redis.NewClusterClient(&redis.ClusterOptions{
 			Addrs:        o.Addrs,
 			Password:     o.Passwd,
 			PoolSize:     o.Pool,
@@ -63,16 +63,16 @@ func NewClusterRedis(o *RedisOptions) Cacher {
 	}
 }
 
-func (r ClusterRedis) Set(k string, p string, v interface{}, d time.Duration) *domain.TechnicalError {
-	r.Cache.Del(k + ":" + p)
+func (r clusterRedis) Set(k string, p string, v interface{}, d time.Duration) *domain.TechnicalError {
+	r.cache.Del(k + ":" + p)
 	if d != 0*time.Second {
-		_, err := r.Cache.SetNX(k+":"+p, v, d).Result()
+		_, err := r.cache.SetNX(k+":"+p, v, d).Result()
 		if err != nil {
 			r.logger.Error("failed on cluster setnx ops property ", zap.String("key", k), zap.String("pair", p))
 			return service.Exception("failed on cluster setnx ops", err, r.logger)
 		}
 	} else {
-		_, err := r.Cache.Set(k+":"+p, v, 0).Result()
+		_, err := r.cache.Set(k+":"+p, v, 0).Result()
 		if err != nil {
 			r.logger.Error("failed on cluster set ops property", zap.String("key", k), zap.String("pair", p))
 			return service.Exception("failed on cluster set ops", err, r.logger)
@@ -81,16 +81,16 @@ func (r ClusterRedis) Set(k string, p string, v interface{}, d time.Duration) *d
 	return nil
 }
 
-func (r ClusterRedis) Delete(k string, p string) (out *domain.TechnicalError) {
-	if cmd := r.Cache.Del(k + ":" + p); cmd.Err() != nil {
+func (r clusterRedis) Delete(k string, p string) (out *domain.TechnicalError) {
+	if cmd := r.cache.Del(k + ":" + p); cmd.Err() != nil {
 		r.logger.Error("failed on cluster delete ops property", zap.String("key", k), zap.String("pair", p))
 		return service.Exception("failed on cluster delete ops", cmd.Err(), r.logger)
 	}
 	return nil
 }
 
-func (r ClusterRedis) Get(k string, p string) (v string, e *domain.TechnicalError) {
-	v, err := r.Cache.Get(k + ":" + p).Result()
+func (r clusterRedis) Get(k string, p string) (v string, e *domain.TechnicalError) {
+	v, err := r.cache.Get(k + ":" + p).Result()
 	if err != nil {
 		r.logger.Error("failed on cluster get ops property", zap.String("key", k), zap.String("pair", p))
 		return v, service.Exception("failed on cluster get ops", err, r.logger)
@@ -98,8 +98,8 @@ func (r ClusterRedis) Get(k string, p string) (v string, e *domain.TechnicalErro
 	return v, nil
 }
 
-func (r ClusterRedis) Ttl(k string, p string) (t time.Duration, e *domain.TechnicalError) {
-	if cmd := r.Cache.TTL(k + ":" + p); cmd.Err() != nil {
+func (r clusterRedis) Ttl(k string, p string) (t time.Duration, e *domain.TechnicalError) {
+	if cmd := r.cache.TTL(k + ":" + p); cmd.Err() != nil {
 		r.logger.Error("failed on cluster TTL ops property", zap.String("key", k), zap.String("pair", p))
 		return t, service.Exception("failed on cluster TTL ops", cmd.Err(), r.logger)
 	} else {
@@ -107,16 +107,16 @@ func (r ClusterRedis) Ttl(k string, p string) (t time.Duration, e *domain.Techni
 	}
 }
 
-func (r Redis) Set(k string, p string, v interface{}, d time.Duration) *domain.TechnicalError {
-	r.Cache.Del(k + ":" + p)
+func (r singleRedis) Set(k string, p string, v interface{}, d time.Duration) *domain.TechnicalError {
+	r.cache.Del(k + ":" + p)
 	if d != 0*time.Second {
-		_, err := r.Cache.SetNX(k+":"+p, v, d).Result()
+		_, err := r.cache.SetNX(k+":"+p, v, d).Result()
 		if err != nil {
 			r.logger.Error("failed on setnx ops property", zap.String("key", k), zap.String("pair", p))
 			return service.Exception("failed on setnx ops", err, r.logger)
 		}
 	} else {
-		_, err := r.Cache.Set(k+":"+p, v, 0).Result()
+		_, err := r.cache.Set(k+":"+p, v, 0).Result()
 		if err != nil {
 			r.logger.Error("failed on set ops property", zap.String("key", k), zap.String("pair", p))
 			return service.Exception("failed on set ops", err, r.logger)
@@ -125,16 +125,16 @@ func (r Redis) Set(k string, p string, v interface{}, d time.Duration) *domain.T
 	return nil
 }
 
-func (r Redis) Delete(k string, p string) *domain.TechnicalError {
-	if cmd := r.Cache.Del(k + ":" + p); cmd.Err() != nil {
+func (r singleRedis) Delete(k string, p string) *domain.TechnicalError {
+	if cmd := r.cache.Del(k + ":" + p); cmd.Err() != nil {
 		r.logger.Error("failed on delete ops property", zap.String("key", k), zap.String("pair", p))
 		return service.Exception("failed on delete ops", cmd.Err(), r.logger)
 	}
 	return nil
 }
 
-func (r Redis) Get(k string, p string) (string, *domain.TechnicalError) {
-	v, err := r.Cache.Get(k + ":" + p).Result()
+func (r singleRedis) Get(k string, p string) (string, *domain.TechnicalError) {
+	v, err := r.cache.Get(k + ":" + p).Result()
 	if err != nil {
 		r.logger.Error("failed on get ops property", zap.String("key", k), zap.String("pair", p))
 		return v, service.Exception("failed on get ops", err, r.logger)
@@ -142,8 +142,8 @@ func (r Redis) Get(k string, p string) (string, *domain.TechnicalError) {
 	return v, nil
 }
 
-func (r Redis) Ttl(k string, p string) (t time.Duration, e *domain.TechnicalError) {
-	cmd := r.Cache.TTL(k + ":" + p)
+func (r singleRedis) Ttl(k string, p string) (t time.Duration, e *domain.TechnicalError) {
+	cmd := r.cache.TTL(k + ":" + p)
 	if cmd.Err() != nil {
 		r.logger.Error("failed on TTL ops", zap.Error(cmd.Err()))
 		return t, service.Exception("failed on TTL ops", cmd.Err(), r.logger)
